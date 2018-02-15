@@ -41,7 +41,7 @@ Results are presented in the R markdown file 'result_review.Rmd', and figures ar
 ### HRV data
   - anon_id: Unique patient ID
 HRV measures:
-Variables without '_#' (underscore number) endings are 24 hour measurements. Variables with '_#' endings are 5 min samples at 6 am, 1 pm, 6 pm, and 2 am respectively. All time variables are in seconds (S), S^2 or S^-1. Variables are calculated and exported in Kubios HRV.
+Variables without '\_#' (underscore number) endings are 24 hour measurements. Variables with '\_#' endings are 5 min samples at 6 am, 1 pm, 6 pm, and 2 am respectively. All time variables are in seconds (S), S^2 or S^-1. Variables are calculated and exported in Kubios HRV.
   - mean.RR: Mean RR interval.
   - std.RR: Standard deviation (SD) of RR intervals.
   - mean.HRV: Mean heart rate. (Erroneous variable name in kubios export file)
