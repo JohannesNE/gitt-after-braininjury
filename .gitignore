@@ -1,0 +1,16 @@
+*.Rproj.user
+*.Rhistory
+*.RData
+*.log
+*.pdf
+*.docx
+**.html
+*.bib
+*.aux
+*.bbl
+*.blg
+*.out
+*.gz
+.Rproj.user
+
+
