@@ -1,6 +1,6 @@
 # Gastrointestinal transit time in patients with acquired brain injury
 
-This repository is an anonymized version of the dataanalysis used for the article manuscript 'gastrointestinal transit time in patients with acquired brain injury'. To ensure patient anonymity, dates are ommitted from the data set, and only derived time intervals are inclued.
+This repository is an anonymized version of the data analysis used for the article manuscript 'gastrointestinal transit time in patients with acquired brain injury'. To ensure patient anonymity, dates are ommitted from the data set, and only derived time intervals are included.
 
 Results are presented in the R markdown file 'result_review.Rmd', and figures are generated in 'gen_plots_article.R'. Both sources 'main.R'.
 
