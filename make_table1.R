@@ -66,7 +66,7 @@ make_list_data <- function(var_vector, type_vector, name_vector = var_vector,
 	
 }
 
-vars_in_table_pt <- c("cpr", "sex", "age", "days_since_inj", "fim", "inj_cat",
+vars_in_table_pt <- c("anon_id", "sex", "age", "days_since_inj", "fim", "inj_cat",
 		      "use_laxative", "gitt")
 names_in_table_pt <- c("Total", "Sex", "Age", "Days since injury", "FIM score",
 		       "Type of injury", "Laxative use", "Total GITT")
