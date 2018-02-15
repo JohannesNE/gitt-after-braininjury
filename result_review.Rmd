@@ -1,0 +1,210 @@
+---
+title: "GITT in patients with aquired brain injury"
+author: "Johannes Enevoldsen"
+output:
+  html_document:
+  theme: readable
+
+---
+	
+```{r global options, include=FALSE, echo=FALSE}
+
+library(knitr)
+
+```
+
+
+```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+source("main.R")
+
+library(pander)
+library(broom)
+
+```
+### Overview of patients
+
+```{r echo=FALSE, results='asis'}
+set.alignment('left', row.names = 'right')
+pander(rbind(c("n", table_data_html_pt$Total),
+		 c("Males", table_data_html_pt$Sex[2]),
+		 c("Age - median (IQR)", table_data_html_pt$Age),
+		 c("Days since injury - median (IQR)", table_data_html_pt$`Days since injury`),
+		 c("FIM score - median (IQR)", table_data_html_pt$`FIM score`)
+		 ))
+
+
+```
+
+### Overview of controls
+
+```{r echo=FALSE, results='asis'}
+set.alignment('left', row.names = 'right')
+pander(rbind(c("n", table_data_html_cnt$Total),
+		 c("Males", table_data_html_cnt$Sex[2]),
+		 c("Age - median (IQR)", table_data_html_cnt$Age)
+		 ))
+
+
+```
+
+#### Age ranges
+Patients: `r range(df_pt$age)`
+
+Controls: `r range(df_cnt$age)`
+
+
+### Age and gender differences between patients and controls.
+```{r echo=FALSE, results='markup'}
+mean(df_pt$age) - mean(df_cnt$age)
+var.test(age~grp, short_data)
+t.test(age~grp, var.equal = TRUE, short_data)
+t.test(sex=="Male"~grp, short_data)
+
+sex_table <- table(short_data$sex, short_data$grp)
+chisq.test(sex_table, correct = FALSE)
+```
+
+### FIM score
+```{r}
+median(df_pt$days_rtg_to_fim)
+quantile(df_pt$days_rtg_to_fim)
+
+median(df_pt$fim)
+quantile(df_pt$fim)
+
+cor.test(df_pt$fim, df_pt$age, method = "spearman")
+cor.test(df_pt$fim, df_pt$gitt, method = "spearman")
+qplot(age, fim, data=df_pt)
+qplot(fim, gitt, data=df_pt)
+
+```
+
+
+### GITT difference between patients and controls
+Welch T-test is used due to different variance in the two groups.
+```{r echo=FALSE, results='markup'}
+var.test(gitt~grp, data = short_data)
+sd(df_cnt$gitt)
+sd(df_pt$gitt)
+
+t.test(df_cnt$gitt)
+t.test(df_pt$gitt)
+t.test(gitt~grp, var.equal = FALSE, short_data)
+qqnorm(df_pt$gitt, main = "ABI")
+qqline(df_pt$gitt)
+qqnorm(df_cnt$gitt, main = "Controls")
+qqline(df_cnt$gitt)
+
+
+
+
+```
+
+### Linear model of GITT by group (pt vs cnt), age and sex
+```{r echo=FALSE, results='asis'}
+tidy(gitt_age_sex_lm) %>% 
+	cbind(confint(gitt_age_sex_lm)) %>% 
+	kable()
+```
+
+
+### Days since injury
+```{r}
+plot(days_since_inj~fim, data=df_pt)
+plot(days_since_inj~gitt, data=df_pt)
+hist(df_pt$days_since_inj)
+cor.test(df_pt$days_since_inj, df_pt$gitt, method = "spearman")
+cor.test(df_pt$days_since_inj, df_pt$fim, method = "spearman")
+```
+
+### Laxative use. 
+
+FIM is lower in laxative users
+
+```{r}
+t.test(df_pt$use_laxative == "Y", df_cnt$use_laxative == "Y")
+
+var.test(gitt~use_laxative, data = df_pt) #Equal var
+
+(gitt_by_lax <- t.test(gitt~use_laxative, data = df_pt, var.equal = TRUE))
+-diff(gitt_by_lax$estimate) #mean Y - mean N
+
+
+lapply(c("age", "days_since_inj", "fim", "fim_no_bowel"), function(x){
+	formula1 <- as.formula(paste(x,"~use_laxative"))
+	means <- aggregate(formula1, data = df_pt, FUN = mean)
+	
+	list(means,
+	     diff = means[1,2]-means[2,2],
+	wilcox.test(formula1, data=df_pt))
+})
+
+```
+
+### Opioids
+```{r}
+t.test(df_pt$use_opioid == "Y")
+
+var.test(gitt~use_opioid, data = df_pt) #Equal var
+
+(gitt_by_opioid <- t.test(gitt~use_opioid, data = df_pt, var.equal = TRUE))
+diff(gitt_by_opioid$estimate) 
+-gitt_by_opioid$conf.int #mean Y - mean N
+
+```
+
+### Statins
+```{r}
+t.test(df_pt$use_statin)
+
+var.test(gitt~use_statin, data = df_pt) #Equal var
+
+(gitt_by_statin <- t.test(gitt~use_statin, data = df_pt, var.equal = TRUE))
+diff(gitt_by_statin$estimate) #mean Y - mean N
+-gitt_by_statin$conf.int
+```
+
+### SSRI
+```{r}
+t.test(df_pt$use_ssri)
+
+var.test(gitt~use_ssri, data = df_pt) #Equal var
+
+(gitt_by_ssri <- t.test(gitt~use_ssri, data = df_pt, var.equal = TRUE))
+diff(gitt_by_ssri$estimate) #mean Y - mean N
+-gitt_by_ssri$conf.int
+
+```
+
+
+### Questionnaire
+```{r}
+hist(as.numeric(df_pt$rtg_to_q))
+range(as.numeric(df_pt$rtg_to_q), na.rm = TRUE)
+
+
+df_pt$rtg_to_q %>% quantile(na.rm=TRUE)
+
+with(df_pt, q_sum[q_sum < 10] %>% mean(na.rm = TRUE))
+with(df_pt, q_sum[q_sum < 10] %>% range(na.rm = TRUE))
+
+mean(df_pt$days_inj_to_q, na.rm=TRUE)
+quantile(df_pt$days_inj_to_q, na.rm = TRUE)
+
+```
+
+### HRV results
+```{r}
+kable(hrv_table_linear) #Only for Heart rate
+kable(hrv_table_log)
+```
+
+### HRV Correlation tests
+
+Gitt does not correlate with HF power or RMSSD
+```{r, echo=FALSE}
+cor.test(df_pt$gitt, log(df_pt$HF.power_5)) %>% tidy() %>% kable(digits = 3, caption="Pearson: gitt, log(HF.power_5)")
+cor.test(df_pt$gitt, log(df_pt$RMSSD_5)) %>% tidy() %>% kable(digits = 3, caption="Pearson: gitt, log(RMSSD_5)")
+```
+
+
